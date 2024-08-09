@@ -22,34 +22,6 @@ void loop() {
       bufferIndex = 0; // Reset buffer index in case of overflow
     }
   }
-
-  // if (bufferIndex > 0) {
-  //   // Đã nhận dữ liệu
-  //   Serial.println("Data received:");
-  //   for (int i = 0; i < bufferIndex; ++i) {
-  //     Serial.print(buffer[i]);
-  //     Serial.print(" ");
-  //   }
-  //   Serial.println();
-    
-  //   // Reset chỉ số chỉ mục sau khi xử lý
-  //   bufferIndex = 0;
-  // }
-  //  if (bufferIndex > 0) {
-  //   Đã nhận dữ liệu
-  //   Serial.println("Data received:");
-  //   int numFloats = bufferIndex / sizeof(float);
-  //   for (int i = 0; i < numFloats; ++i) {
-  //     float value;
-  //     memcpy(&value, &buffer[i * sizeof(float)], sizeof(float));
-  //     Serial.print(value, 4);  // In với 4 chữ số thập phân
-  //     Serial.print(" ");
-  //   }
-  //   Serial.println();
-    
-  //   Reset chỉ số chỉ mục sau khi xử lý
-  //   bufferIndex = 0;
-  // }
   if (bufferIndex >= 2 * sizeof(int)) {
     // Đã nhận đủ kích thước dữ liệu
     memcpy(&numRows, buffer, sizeof(int));
