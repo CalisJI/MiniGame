@@ -245,9 +245,9 @@ void drawRandomPoint(int x_ref, int y_ref, int min_distance, bool generated)
     }
   }
 
-  Serial.printf("x moi: %d", x_moi);
-  Serial.printf("Y moi: %d", y_moi);
-  Serial.println();
+  // Serial.printf("x moi: %d", x_moi);
+  // Serial.printf("Y moi: %d", y_moi);
+  // Serial.println();
 }
 int *drawStickMan(int x, int y)
 {
@@ -279,7 +279,7 @@ void setup()
   dma_display->setBrightness8(50); // 0-255
   dma_display->clearScreen();
   // SerialBT.begin("ESP32Test");
-  //setup_routing();
+  // setup_routing();
 }
 
 void Display_Point(int x, int y, int r, int g, int b)
@@ -326,7 +326,7 @@ void printData()
 bool mode = false;
 void loop()
 {
-  //server.handleClient();
+  // server.handleClient();
 #pragma region Serial processing
   while (Serial.available() > 0)
   {
@@ -368,36 +368,39 @@ void loop()
         int x_in = int(data[0][0]);
         int y_in = int(data[0][1]);
 
-        if(x_in==0&&y_in==0){
+        if (x_in == 0 && y_in == 0)
+        {
           mode = true;
         }
-        else if (x_in==255&&y_in==255)
+        else if (x_in == 255 && y_in == 255)
         {
-           mode =false;
+          mode = false;
         }
-        if(mode){
+        if (mode)
+        {
           int *_range;
-         _range = drawStickMan(x, y);
+          _range = drawStickMan(x, y);
         }
-        else{
+        else
+        {
           // measure x dimension
-        int min_x = x - 1 - ((num_moi * 3) / 3);
-        int max_x = x + 1 + ((num_moi * 3) / 3);
-        int min_y = y - 1;
-        int max_y = y + 1;
-        for (int i = min_x; i <= max_x; i++)
+          int min_x = x - 1 - ((num_moi * 3) / 3);
+          int max_x = x + 1 + ((num_moi * 3) / 3);
+          int min_y = y - 1;
+          int max_y = y + 1;
+          for (int i = min_x; i <= max_x; i++)
           {
             for (int j = y - 1; j <= y + 1; j++)
             {
-
               if (j <= 32)
                 dma_display->drawPixelRGB888(i, j, 214, 24, 192);
               else
                 dma_display->drawPixelRGB888(i, j, 214, 192, 24);
               // reach moi
-              if (gen_moi == false)
+              if (gen_moi == false && y<255)
               {
                 drawRandomPoint(x, y, 5 + (num_moi * 3), false);
+                
                 gen_moi = true;
               }
               if (min_x <= x_moi + 1 && max_x > x_moi - 1 && min_y <= y_moi + 1 && max_y >= y_moi - 1)
@@ -424,13 +427,11 @@ void loop()
             }
             reached = false;
           }
-
           if (gen_moi)
           {
             drawRandomPoint(x, y, 5 + (num_moi * 3), gen_moi);
           }
         }
-        
       }
       // Reset chỉ số chỉ mục sau khi xử lý
       bufferIndex = 0;
