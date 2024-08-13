@@ -249,6 +249,85 @@ void drawRandomPoint(int x_ref, int y_ref, int min_distance, bool generated)
   // Serial.printf("Y moi: %d", y_moi);
   // Serial.println();
 }
+
+int MinX_bar = 0;
+int MaxX_bar = 5;
+int MinY_bar = 50;
+void Drawbar(int x){
+  // measure x dimension
+  int dodai = 5;
+
+  MinX_bar = x - 1 - ((dodai * 3) / 3);
+  MaxX_bar = x + 1 + ((dodai * 3) / 3);
+  
+  for (int i = MinX_bar; i <= MaxX_bar; i++)
+  {
+    for (int j = MinY_bar; j <= MinY_bar+1; j++)
+    {
+      if (j <= 32)
+        dma_display->drawPixelRGB888(i, j, 214, 24, 192);
+      else
+        dma_display->drawPixelRGB888(i, j, 214, 192, 24);
+    }
+  }
+}
+
+bool created = false;
+int X_vat = 20;
+int Y_vat = 2;
+void DrawObject(bool deleted = false){
+  // measure x dimension
+  int dodai = 5;
+  
+  if(!created){
+    X_vat = random(20, 109); // random(min, max), max không bao gồm
+    Y_vat = 2;
+    created = true;
+  }
+  else{
+    Y_vat += 1;
+    if(Y_vat>52) created = false;
+  }
+  int min_x = X_vat - 1;
+  int max_x = X_vat + 1;
+  int min_y = Y_vat - 1;
+  int max_y = Y_vat + 1;
+  if (deleted)
+  {
+    for (int i = min_x; i <= max_x; i++)
+    {
+      for (int j = min_y; j <= max_y; j++)
+      {
+        if (j <= 32)
+          dma_display->drawPixelRGB888(i, j, 0, 0, 255);
+        else
+          dma_display->drawPixelRGB888(i, j, 0, 255, 0);
+      }
+    }
+  }
+  else
+  {
+    for (int i = min_x; i <= max_x; i++)
+  {
+    for (int j = min_y; j <= max_y; j++)
+    {
+      dma_display->drawPixelRGB888(i, j, 0, 0, 0);
+    }
+  }
+  }
+}
+
+int score = 0;
+void HeldObject()
+{
+  if(Y_vat>=MinY_bar&&X_vat-1>=MinX_bar&&X_vat+1<=MaxX_bar)
+  {
+    created = false;
+    DrawObject(true);
+    DrawObject();
+    score +=1;
+  }
+}
 int *drawStickMan(int x, int y)
 {
   int range[4];
@@ -282,47 +361,6 @@ void setup()
   // setup_routing();
 }
 
-void Display_Point(int x, int y, int r, int g, int b)
-{
-  for (uint16_t i = 0; i < PANE_WIDTH; i++)
-  {
-    for (uint16_t j = 0; j < PANE_HEIGHT; j++)
-    {
-
-      if (i >= x - 1 && i <= x + 1 && j >= y - 1 && j <= y + 1)
-      {
-        if (j <= 32)
-        {
-          dma_display->drawPixelRGB888(i, j, r, g, b);
-        }
-        else
-        {
-          dma_display->drawPixelRGB888(i, j, r, b, g);
-        }
-      }
-      else
-        dma_display->drawPixelRGB888(i, j, 0, 0, 0);
-    }
-  }
-}
-void printData()
-{
-  Serial.println("Printing data array...");
-
-  for (int i = 0; i < DATA_SIZE; i++)
-  {
-    // In giá trị RGB565 dưới dạng hex
-    if (i % 16 == 0)
-    { // In dòng mới sau mỗi 16 phần tử để dễ đọc
-      Serial.println();
-    }
-    Serial.print("0x");
-    Serial.print(data[i], HEX);
-    Serial.print(" ");
-  }
-  Serial.println();
-  Serial.println("Data printing completed.");
-}
 bool mode = false;
 void loop()
 {
@@ -363,84 +401,85 @@ void loop()
           memcpy(&value, &buffer[index], floatSize);
           data[row][col] = value;
         }
-        int x = int(data[row][0]);
-        int y = int(data[row][1]);
-        int x_in = int(data[0][0]);
-        int y_in = int(data[0][1]);
-
-        if (x_in == 0 && y_in == 0)
-        {
-          mode = true;
-        }
-        else if (x_in == 255 && y_in == 255)
-        {
-          mode = false;
-        }
-        if (mode)
-        {
-          int *_range;
-          _range = drawStickMan(x, y);
-        }
-        else
-        {
-          // measure x dimension
-          int min_x = x - 1 - ((num_moi * 3) / 3);
-          int max_x = x + 1 + ((num_moi * 3) / 3);
-          int min_y = y - 1;
-          int max_y = y + 1;
-          for (int i = min_x; i <= max_x; i++)
-          {
-            for (int j = y - 1; j <= y + 1; j++)
-            {
-              if (j <= 32)
-                dma_display->drawPixelRGB888(i, j, 214, 24, 192);
-              else
-                dma_display->drawPixelRGB888(i, j, 214, 192, 24);
-              // reach moi
-              if (gen_moi == false && y<255)
-              {
-                drawRandomPoint(x, y, 5 + (num_moi * 3), false);
-                
-                gen_moi = true;
-              }
-              if (min_x <= x_moi + 1 && max_x > x_moi - 1 && min_y <= y_moi + 1 && max_y >= y_moi - 1)
-              {
-                reached = true;
-                num_moi += 1;
-                gen_moi = false;
-              }
-            }
-          }
-          if (reached)
-          {
-            min_x = x - 1 - ((num_moi * 3) / 3);
-            max_x = x + 1 + ((num_moi * 3) / 3);
-            for (int i = min_x; i <= max_x; i++)
-            {
-              for (int j = y - 1; j <= y + 1; j++)
-              {
-                if (j <= 32)
-                  dma_display->drawPixelRGB888(i, j, 214, 24, 192);
-                else
-                  dma_display->drawPixelRGB888(i, j, 214, 192, 24);
-              }
-            }
-            reached = false;
-          }
-          if (gen_moi)
-          {
-            drawRandomPoint(x, y, 5 + (num_moi * 3), gen_moi);
-          }
-        }
+        
       }
       // Reset chỉ số chỉ mục sau khi xử lý
       bufferIndex = 0;
-      // Serial.printf("%d - %d",int(data[0][0]),int(data[0][1]));
-      // Display_Point(int(data[0][0]),int(data[0][1]),214,24,192);
-      // Display_Point(data,numRows,numCols,214,24,192);
     }
   }
 #pragma endregion
 
   // readDataFromSerial();
 }
+
+
+
+// int x = int(data[row][0]);
+// int y = int(data[row][1]);
+// int x_in = int(data[0][0]);
+// int y_in = int(data[0][1]);
+
+// if (x_in == 0 && y_in == 0)
+// {
+//   mode = true;
+// }
+// else if (x_in == 255 && y_in == 255)
+// {
+//   mode = false;
+// }
+// if (mode)
+// {
+//   int *_range;
+//   _range = drawStickMan(x, y);
+// }
+// else
+// {
+//   // measure x dimension
+//   int min_x = x - 1 - ((num_moi * 3) / 3);
+//   int max_x = x + 1 + ((num_moi * 3) / 3);
+//   int min_y = y - 1;
+//   int max_y = y + 1;
+//   for (int i = min_x; i <= max_x; i++)
+//   {
+//     for (int j = y - 1; j <= y + 1; j++)
+//     {
+//       if (j <= 32)
+//         dma_display->drawPixelRGB888(i, j, 214, 24, 192);
+//       else
+//         dma_display->drawPixelRGB888(i, j, 214, 192, 24);
+//       // reach moi
+//       if (gen_moi == false && y<255)
+//       {
+//         drawRandomPoint(x, y, 5 + (num_moi * 3), false);
+        
+//         gen_moi = true;
+//       }
+//       if (min_x <= x_moi + 1 && max_x > x_moi - 1 && min_y <= y_moi + 1 && max_y >= y_moi - 1)
+//       {
+//         reached = true;
+//         num_moi += 1;
+//         gen_moi = false;
+//       }
+//     }
+//   }
+//   if (reached)
+//   {
+//     min_x = x - 1 - ((num_moi * 3) / 3);
+//     max_x = x + 1 + ((num_moi * 3) / 3);
+//     for (int i = min_x; i <= max_x; i++)
+//     {
+//       for (int j = y - 1; j <= y + 1; j++)
+//       {
+//         if (j <= 32)
+//           dma_display->drawPixelRGB888(i, j, 214, 24, 192);
+//         else
+//           dma_display->drawPixelRGB888(i, j, 214, 192, 24);
+//       }
+//     }
+//     reached = false;
+//   }
+//   if (gen_moi)
+//   {
+//     drawRandomPoint(x, y, 5 + (num_moi * 3), gen_moi);
+//   }
+// }
