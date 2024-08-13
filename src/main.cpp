@@ -203,8 +203,8 @@ void DrawObject(bool deleted = false)
 }
 
 int score = 0;
-#define COLOR_BLACK   dma_display->color333(0, 0, 0)
-#define COLOR_WHITE   dma_display->color333(7, 7, 7)
+#define COLOR_BLACK dma_display->color333(0, 0, 0)
+#define COLOR_WHITE dma_display->color333(7, 7, 7)
 void HeldObject()
 {
   if (Y_vat >= MinY_bar && X_vat - 1 >= MinX_bar && X_vat + 1 <= MaxX_bar)
@@ -217,6 +217,71 @@ void HeldObject()
     dma_display->setTextColor(COLOR_WHITE);
     dma_display->setCursor(4, 4);
     dma_display->printf("Score: %d", score);
+  }
+}
+
+// Stickman
+
+int X_shot = 0;
+int Y_shot = 32;
+bool created_shot = false;
+bool direction = false;
+void Drawshot(bool deleted = false)
+{
+  // measure x dimension
+
+  if (!created_shot)
+  {
+    int ran = random(1, 3);
+    if (ran == 1)
+    {
+      X_shot = 1;
+      direction = false;
+    }
+    else
+    {
+      X_shot = 126;
+      direction = true;
+    }
+    created_shot = true;
+  }
+  else
+  {
+    if (direction == false)
+    {
+      X_shot += 1;
+    }
+    else
+    {
+      X_shot -= 1;
+    }
+  }
+  int min_x = X_shot - 1;
+  int max_x = X_shot;
+  int min_y = Y_shot - 1;
+  int max_y = Y_shot;
+  if (deleted)
+  {
+    for (int i = min_x; i <= max_x; i++)
+    {
+      for (int j = min_y; j <= max_y; j++)
+      {
+        if (j <= 32)
+          dma_display->drawPixelRGB888(i, j, 0, 0, 255);
+        else
+          dma_display->drawPixelRGB888(i, j, 0, 255, 0);
+      }
+    }
+  }
+  else
+  {
+    for (int i = min_x; i <= max_x; i++)
+    {
+      for (int j = min_y; j <= max_y; j++)
+      {
+        dma_display->drawPixelRGB888(i, j, 0, 0, 0);
+      }
+    }
   }
 }
 int *drawStickMan(int x, int y)
