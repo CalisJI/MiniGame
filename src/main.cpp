@@ -3,6 +3,7 @@
 #include <FastLED.h>
 #include <WebServer.h>
 #include <ArduinoJson.h>
+#include <Fonts/FreeSans9pt7b.h>
 #pragma region Matrix Config
 #define R1_PIN 25
 #define G1_PIN 26
@@ -21,7 +22,7 @@
 // Configure for your panel(s) as appropriate!
 #define PANEL_WIDTH 64
 #define PANEL_HEIGHT 64
-#define PANELS_NUMBER 4
+#define PANELS_NUMBER 2
 
 #define PANE_WIDTH PANEL_WIDTH *PANELS_NUMBER
 #define PANE_HEIGHT PANEL_HEIGHT
@@ -51,126 +52,6 @@ static int y_moi = 0;
 int num_moi = 0;
 bool reached = false;
 bool gen_moi = false;
-const char *htmlPage = R"=====(
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Led Strip Controller</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-            background-color: #f0f0f0;
-        }
-
-        .container {
-            background: #fff;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        }
-        .buttons {
-            display: flex;
-            justify-content: space-between;
-            gap: 10px; /* Khoảng cách giữa các nút */
-        }
-
-        .buttons button {
-            padding: 10px 20px;
-            font-size: 16px;
-            cursor: pointer;
-            border: none;
-            border-radius: 4px;
-            background-color: #007bff;
-            color: #fff;
-            transition: background-color 0.3s;
-        }
-
-        .buttons button:hover {
-            background-color: #0056b3;
-        }
-        .input-group input {
-            padding: 10px;
-            font-size: 16px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            width: 100%;
-            box-sizing: border-box;
-        }
-        .checkbox-group {
-            margin-bottom: 20px;
-            display: flex;
-            flex-direction: row;
-        }
-
-        .checkbox-group label {
-            display: block;
-            margin-bottom: 10px;
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <div class="checkbox-group">
-            <label><input type="checkbox" id="auto" onchange="updateCheckbox('auto')"> Auto</label>
-        </div>
-        <div class="input-group">
-            <label for="brightness">Brightness:</label>
-            <input type="number" id="brightness" placeholder="Brightness">
-        </div>
-        <div class="input-group">
-            <label for="speed">Speed:</label>
-            <input type="number" id="speed" placeholder="Speed">
-        </div>
-        <div class="input-group">
-            <label for="leds">LEDs:</label>
-            <input type="number" id="leds" placeholder="LEDs">
-        </div>
-        <div class="buttons">
-            <button onclick="sendData('start')">Start</button>
-            <button onclick="sendData('stop')">Stop</button>
-            <button onclick="sendData('next')">Next</button>
-            <button onclick="sendData('previous')">Previous</button>
-            <button onclick="sendInputData()">Apply Config</button>
-            <button onclick="sendLeds()">Set LEDs</button>
-        </div>
-    </div>
-
-    <script>
-        function updateCheckbox(id) {
-            var checkbox = document.getElementById(id);
-            var xhr = new XMLHttpRequest();
-            xhr.open("GET", "/state?mode=" + (checkbox.checked ? "1" : "0"), true);
-            xhr.send();
-        }
-        function sendData(action) {
-            var xhr = new XMLHttpRequest();
-            xhr.open("GET", "/" + action, true);
-            xhr.send();
-        }
-        function sendInputData() {
-          var brightness = document.getElementById('brightness').value;
-          var speed = document.getElementById('speed').value;
-          var xhr = new XMLHttpRequest();
-          xhr.open("GET", "/inputs?brightness=" + brightness + "&speed=" + speed+ "&leds=" + leds, true);
-          xhr.send();
-        }
-        function sendLeds() {
-          var Leds = document.getElementById('leds').value;
-          var xhr = new XMLHttpRequest();
-          xhr.open("GET", "/setLeds?leds=" + Leds, true);
-          xhr.send();
-        }
-    </script>
-</body>
-</html>
-)=====";
 
 uint16_t rgbToUint16(uint8_t r, uint8_t g, uint8_t b, bool mode)
 {
@@ -253,16 +134,17 @@ void drawRandomPoint(int x_ref, int y_ref, int min_distance, bool generated)
 int MinX_bar = 0;
 int MaxX_bar = 5;
 int MinY_bar = 50;
-void Drawbar(int x){
+void Drawbar(int x)
+{
   // measure x dimension
   int dodai = 5;
 
   MinX_bar = x - 1 - ((dodai * 3) / 3);
   MaxX_bar = x + 1 + ((dodai * 3) / 3);
-  
+
   for (int i = MinX_bar; i <= MaxX_bar; i++)
   {
-    for (int j = MinY_bar; j <= MinY_bar+1; j++)
+    for (int j = MinY_bar; j <= MinY_bar + 1; j++)
     {
       if (j <= 32)
         dma_display->drawPixelRGB888(i, j, 214, 24, 192);
@@ -275,18 +157,21 @@ void Drawbar(int x){
 bool created = false;
 int X_vat = 20;
 int Y_vat = 2;
-void DrawObject(bool deleted = false){
+void DrawObject(bool deleted = false)
+{
   // measure x dimension
   int dodai = 5;
-  
-  if(!created){
+  if (!created)
+  {
     X_vat = random(20, 109); // random(min, max), max không bao gồm
     Y_vat = 2;
     created = true;
   }
-  else{
+  else
+  {
     Y_vat += 1;
-    if(Y_vat>52) created = false;
+    if (Y_vat > 52)
+      created = false;
   }
   int min_x = X_vat - 1;
   int max_x = X_vat + 1;
@@ -308,24 +193,30 @@ void DrawObject(bool deleted = false){
   else
   {
     for (int i = min_x; i <= max_x; i++)
-  {
-    for (int j = min_y; j <= max_y; j++)
     {
-      dma_display->drawPixelRGB888(i, j, 0, 0, 0);
+      for (int j = min_y; j <= max_y; j++)
+      {
+        dma_display->drawPixelRGB888(i, j, 0, 0, 0);
+      }
     }
-  }
   }
 }
 
 int score = 0;
+#define COLOR_BLACK   dma_display->color333(0, 0, 0)
+#define COLOR_WHITE   dma_display->color333(7, 7, 7)
 void HeldObject()
 {
-  if(Y_vat>=MinY_bar&&X_vat-1>=MinX_bar&&X_vat+1<=MaxX_bar)
+  if (Y_vat >= MinY_bar && X_vat - 1 >= MinX_bar && X_vat + 1 <= MaxX_bar)
   {
     created = false;
     DrawObject(true);
     DrawObject();
-    score +=1;
+    score += 1;
+    dma_display->setFont(&FreeSans9pt7b); // Change to the desired font size
+    dma_display->setTextColor(COLOR_WHITE);
+    dma_display->setCursor(4, 4);
+    dma_display->printf("Score: %d", score);
   }
 }
 int *drawStickMan(int x, int y)
@@ -357,11 +248,10 @@ void setup()
   dma_display->begin();            // setup the LED matrix
   dma_display->setBrightness8(50); // 0-255
   dma_display->clearScreen();
-  // SerialBT.begin("ESP32Test");
-  // setup_routing();
 }
 
 bool mode = false;
+unsigned long period_time = millis();
 void loop()
 {
   // server.handleClient();
@@ -401,8 +291,17 @@ void loop()
           memcpy(&value, &buffer[index], floatSize);
           data[row][col] = value;
         }
-        
       }
+
+      Drawbar(int(data[0][0]));
+      unsigned long now = millis();
+      if (now - period_time >= 600)
+      {
+        DrawObject();
+        HeldObject();
+        period_time = now;
+      }
+
       // Reset chỉ số chỉ mục sau khi xử lý
       bufferIndex = 0;
     }
@@ -411,8 +310,6 @@ void loop()
 
   // readDataFromSerial();
 }
-
-
 
 // int x = int(data[row][0]);
 // int y = int(data[row][1]);
@@ -451,7 +348,7 @@ void loop()
 //       if (gen_moi == false && y<255)
 //       {
 //         drawRandomPoint(x, y, 5 + (num_moi * 3), false);
-        
+
 //         gen_moi = true;
 //       }
 //       if (min_x <= x_moi + 1 && max_x > x_moi - 1 && min_y <= y_moi + 1 && max_y >= y_moi - 1)
