@@ -1,8 +1,8 @@
 #include <HardwareSerial.h>
 #include <ESP32-HUB75-MatrixPanel-I2S-DMA.h>
 #include <FastLED.h>
-// #include <WebServer.h>
-// #include <ArduinoJson.h>
+#include <WebServer.h>
+#include <ArduinoJson.h>
 #pragma region Matrix Config
 #define R1_PIN 25
 #define G1_PIN 26
@@ -323,7 +323,7 @@ void printData()
   Serial.println();
   Serial.println("Data printing completed.");
 }
-
+bool mode = false;
 void loop()
 {
   //server.handleClient();
@@ -365,61 +365,72 @@ void loop()
         }
         int x = int(data[row][0]);
         int y = int(data[row][1]);
+        int x_in = int(data[0][0]);
+        int y_in = int(data[0][1]);
 
-        // measure x dimension
+        if(x_in==0&&y_in==0){
+          mode = true;
+        }
+        else if (x_in==255&&y_in==255)
+        {
+           mode =false;
+        }
+        if(mode){
+          int *_range;
+         _range = drawStickMan(x, y);
+        }
+        else{
+          // measure x dimension
         int min_x = x - 1 - ((num_moi * 3) / 3);
         int max_x = x + 1 + ((num_moi * 3) / 3);
         int min_y = y - 1;
         int max_y = y + 1;
+        for (int i = min_x; i <= max_x; i++)
+          {
+            for (int j = y - 1; j <= y + 1; j++)
+            {
 
-        int *_range;
-         _range = drawStickMan(x, y);
+              if (j <= 32)
+                dma_display->drawPixelRGB888(i, j, 214, 24, 192);
+              else
+                dma_display->drawPixelRGB888(i, j, 214, 192, 24);
+              // reach moi
+              if (gen_moi == false)
+              {
+                drawRandomPoint(x, y, 5 + (num_moi * 3), false);
+                gen_moi = true;
+              }
+              if (min_x <= x_moi + 1 && max_x > x_moi - 1 && min_y <= y_moi + 1 && max_y >= y_moi - 1)
+              {
+                reached = true;
+                num_moi += 1;
+                gen_moi = false;
+              }
+            }
+          }
+          if (reached)
+          {
+            min_x = x - 1 - ((num_moi * 3) / 3);
+            max_x = x + 1 + ((num_moi * 3) / 3);
+            for (int i = min_x; i <= max_x; i++)
+            {
+              for (int j = y - 1; j <= y + 1; j++)
+              {
+                if (j <= 32)
+                  dma_display->drawPixelRGB888(i, j, 214, 24, 192);
+                else
+                  dma_display->drawPixelRGB888(i, j, 214, 192, 24);
+              }
+            }
+            reached = false;
+          }
+
+          if (gen_moi)
+          {
+            drawRandomPoint(x, y, 5 + (num_moi * 3), gen_moi);
+          }
+        }
         
-        
-        // for (int i = min_x; i <= max_x; i++)
-        //   {
-        //     for (int j = y - 1; j <= y + 1; j++)
-        //     {
-
-        //       if (j <= 32)
-        //         dma_display->drawPixelRGB888(i, j, 214, 24, 192);
-        //       else
-        //         dma_display->drawPixelRGB888(i, j, 214, 192, 24);
-        //       // reach moi
-        //       if (gen_moi == false)
-        //       {
-        //         drawRandomPoint(x, y, 5 + (num_moi * 3), false);
-        //         gen_moi = true;
-        //       }
-        //       if (min_x <= x_moi + 1 && max_x > x_moi - 1 && min_y <= y_moi + 1 && max_y >= y_moi - 1)
-        //       {
-        //         reached = true;
-        //         num_moi += 1;
-        //         gen_moi = false;
-        //       }
-        //     }
-        //   }
-        //   if (reached)
-        //   {
-        //     min_x = x - 1 - ((num_moi * 3) / 3);
-        //     max_x = x + 1 + ((num_moi * 3) / 3);
-        //     for (int i = min_x; i <= max_x; i++)
-        //     {
-        //       for (int j = y - 1; j <= y + 1; j++)
-        //       {
-        //         if (j <= 32)
-        //           dma_display->drawPixelRGB888(i, j, 214, 24, 192);
-        //         else
-        //           dma_display->drawPixelRGB888(i, j, 214, 192, 24);
-        //       }
-        //     }
-        //     reached = false;
-        //   }
-
-        //   if (gen_moi)
-        //   {
-        //     drawRandomPoint(x, y, 5 + (num_moi * 3), gen_moi);
-        //   }
       }
       // Reset chỉ số chỉ mục sau khi xử lý
       bufferIndex = 0;
