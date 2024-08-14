@@ -3,7 +3,7 @@
 #include <FastLED.h>
 #include <WebServer.h>
 #include <ArduinoJson.h>
-#include <Fonts/FreeSans9pt7b.h>
+#include <Fonts/FreeMono9pt7b.h>
 #pragma region Matrix Config
 #define R1_PIN 25
 #define G1_PIN 26
@@ -52,7 +52,7 @@ static int y_moi = 0;
 int num_moi = 0;
 bool reached = false;
 bool gen_moi = false;
-
+unsigned long period_time = millis();
 uint16_t rgbToUint16(uint8_t r, uint8_t g, uint8_t b, bool mode)
 {
   if (mode)
@@ -137,69 +137,89 @@ int MinY_bar = 50;
 void Drawbar(int x)
 {
   // measure x dimension
-  int dodai = 5;
+  int dodai = 16;
+  MinX_bar = x-dodai/2;
+  MaxX_bar = x+dodai/2;
+  dma_display->drawLine(MinX_bar,MinY_bar-1,MaxX_bar,MinY_bar-1,dma_display->color333(3,3,3));
+  dma_display->drawLine(MinX_bar,MinY_bar,MaxX_bar,MinY_bar,dma_display->color333(3,3,3));
 
-  MinX_bar = x - 1 - ((dodai * 3) / 3);
-  MaxX_bar = x + 1 + ((dodai * 3) / 3);
+  // MinX_bar = x - 1 - ((dodai * 3) / 3);
+  // MaxX_bar = x + 1 + ((dodai * 3) / 3);
 
-  for (int i = MinX_bar; i <= MaxX_bar; i++)
-  {
-    for (int j = MinY_bar; j <= MinY_bar + 1; j++)
-    {
-      if (j <= 32)
-        dma_display->drawPixelRGB888(i, j, 214, 24, 192);
-      else
-        dma_display->drawPixelRGB888(i, j, 214, 192, 24);
-    }
-  }
+  // for (int i = MinX_bar; i <= MaxX_bar; i++)
+  // {
+  //   for (int j = MinY_bar; j <= MinY_bar + 1; j++)
+  //   {
+  //     if (j <= 32)
+  //       dma_display->drawPixelRGB888(i, j, 214, 24, 192);
+  //     else
+  //       dma_display->drawPixelRGB888(i, j, 214, 192, 24);
+  //   }
+  // }
 }
 
 bool created = false;
 int X_vat = 20;
 int Y_vat = 2;
+int lastpoint[2];
+int r = 2;
 void DrawObject(bool deleted = false)
 {
   // measure x dimension
-  int dodai = 5;
+  unsigned long now = millis();
   if (!created)
   {
+    lastpoint[0]=X_vat;
+    lastpoint[1]=Y_vat;
+    dma_display->fillCircle(X_vat,Y_vat,r,dma_display->color333(0,0,0));
+    dma_display->drawLine(MinX_bar,MinY_bar-1,MaxX_bar,MinY_bar-1,dma_display->color333(3,3,3));
+    dma_display->drawLine(MinX_bar,MinY_bar,MaxX_bar,MinY_bar,dma_display->color333(3,3,3));
+
     X_vat = random(20, 109); // random(min, max), max không bao gồm
     Y_vat = 2;
     created = true;
   }
   else
   {
-    Y_vat += 1;
-    if (Y_vat > 52)
-      created = false;
-  }
-  int min_x = X_vat - 1;
-  int max_x = X_vat + 1;
-  int min_y = Y_vat - 1;
-  int max_y = Y_vat + 1;
-  if (deleted)
-  {
-    for (int i = min_x; i <= max_x; i++)
-    {
-      for (int j = min_y; j <= max_y; j++)
-      {
-        if (j <= 32)
-          dma_display->drawPixelRGB888(i, j, 0, 0, 255);
-        else
-          dma_display->drawPixelRGB888(i, j, 0, 255, 0);
-      }
+    if(now-period_time>=600){
+      dma_display->fillCircle(X_vat,Y_vat,r,dma_display->color333(0,0,0));
+      Y_vat += 1;
+      if (Y_vat > 52)created = false;
+      period_time = now;
     }
   }
-  else
-  {
-    for (int i = min_x; i <= max_x; i++)
-    {
-      for (int j = min_y; j <= max_y; j++)
-      {
-        dma_display->drawPixelRGB888(i, j, 0, 0, 0);
-      }
-    }
-  }
+
+  //dma_display->drawCircle(X_vat,Y_vat,1,dma_display->color333(7,0,0));
+  dma_display->fillCircle(X_vat,Y_vat,r,dma_display->color333(7,0,0));
+  // else dma_display->fillCircle(X_vat,Y_vat,1,dma_display->color333(0,0,0));
+  
+  // int min_x = X_vat - 1;
+  // int max_x = X_vat + 1;
+  // int min_y = Y_vat - 1;
+  // int max_y = Y_vat + 1;
+  // if (deleted)
+  // {
+  //   for (int i = min_x; i <= max_x; i++)
+  //   {
+  //     for (int j = min_y; j <= max_y; j++)
+  //     {
+  //       if (j <= 32)
+  //         dma_display->drawPixelRGB888(i, j, 0, 0, 255);
+  //       else
+  //         dma_display->drawPixelRGB888(i, j, 0, 255, 0);
+  //     }
+  //   }
+  // }
+  // else
+  // {
+  //   for (int i = min_x; i <= max_x; i++)
+  //   {
+  //     for (int j = min_y; j <= max_y; j++)
+  //     {
+  //       dma_display->drawPixelRGB888(i, j, 0, 0, 0);
+  //     }
+  //   }
+  // }
 }
 
 int score = 0;
@@ -207,16 +227,23 @@ int score = 0;
 #define COLOR_WHITE dma_display->color333(7, 7, 7)
 void HeldObject()
 {
-  if (Y_vat >= MinY_bar && X_vat - 1 >= MinX_bar && X_vat + 1 <= MaxX_bar)
+  if (Y_vat+r >= MinY_bar-1 && X_vat - 1 >= MinX_bar && X_vat + 1 <= MaxX_bar)
   {
+    Serial.println("Created");
     created = false;
-    DrawObject(true);
+    //DrawObject(true);
     DrawObject();
     score += 1;
-    dma_display->setFont(&FreeSans9pt7b); // Change to the desired font size
+    dma_display->setFont(&FreeMono9pt7b); // Change to the desired font size
     dma_display->setTextColor(COLOR_WHITE);
-    dma_display->setCursor(4, 4);
-    dma_display->printf("Score: %d", score);
+    dma_display->setCursor(2, 11);
+    dma_display->printf("%d", score);
+  }
+  else{
+    dma_display->setFont(&FreeMono9pt7b); // Change to the desired font size
+    dma_display->setTextColor(COLOR_WHITE);
+    dma_display->setCursor(2, 11);
+    dma_display->printf("%d", score);
   }
 }
 
@@ -316,7 +343,6 @@ void setup()
 }
 
 bool mode = false;
-unsigned long period_time = millis();
 void loop()
 {
   // server.handleClient();
@@ -335,6 +361,7 @@ void loop()
       bufferIndex = 0; // Reset buffer index in case of overflow
     }
   }
+  float data[numRows][numCols];
   if (bufferIndex >= 2 * sizeof(int))
   {
     // Đã nhận đủ kích thước dữ liệu
@@ -346,7 +373,7 @@ void loop()
     if (bufferIndex >= (2 * sizeof(int) + expectedSize))
     {
       dma_display->clearScreen();
-      float data[numRows][numCols];
+      
       for (int row = 0; row < numRows; ++row)
       {
         for (int col = 0; col < numCols; ++col)
@@ -359,18 +386,16 @@ void loop()
       }
 
       Drawbar(int(data[0][0]));
-      unsigned long now = millis();
-      if (now - period_time >= 600)
-      {
-        DrawObject();
-        HeldObject();
-        period_time = now;
-      }
+      
+      
 
       // Reset chỉ số chỉ mục sau khi xử lý
       bufferIndex = 0;
     }
   }
+  //DrawObject(true);
+  DrawObject();
+  HeldObject();
 #pragma endregion
 
   // readDataFromSerial();
