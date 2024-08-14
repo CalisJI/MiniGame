@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            background-color: #f0f0f0;
+        }
+
+        .container {
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .checkbox-group {
+            margin-bottom: 20px;
+            display: flex;
+            flex-direction: row;
+        }
+
+        .checkbox-group label {
+            display: block;
+            margin-bottom: 10px;
+        }
+    </style>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkbox Example</title>
+</head>
+<body>
+   <div class="container">
+    <div class="checkbox-group">
+        <label><input type="checkbox" id="auto" onchange="updateCheckbox('auto')"> Mode</label>
+    </div>
+   </div>
+</body>
+</html>
