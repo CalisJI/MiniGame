@@ -6,24 +6,25 @@
 #include <Fonts/FreeMono9pt7b.h>
 #include <spacecraft.h>
 #pragma region Matrix Config
-#define R1_PIN 25
-#define G1_PIN 26
-#define B1_PIN 27
-#define R2_PIN 14
-#define G2_PIN 12
-#define B2_PIN 13
-#define A_PIN 23
-#define B_PIN 22 // Changed from library default
-#define C_PIN 5
-#define D_PIN 17
-#define E_PIN 32 // required for 1/32 scan panels, like 64x64px. Any available pin would do, i.e. IO32
-#define LAT_PIN 4
-#define OE_PIN 15
-#define CLK_PIN 16
+#define R1_PIN 4
+#define G1_PIN 5
+#define B1_PIN 6
+#define R2_PIN 7
+#define G2_PIN 15
+#define B2_PIN 16
+#define A_PIN 18
+#define B_PIN 8 // Changed from library default
+#define C_PIN 3
+#define D_PIN 42
+#define E_PIN 39 // required for 1/32 scan panels, like 64x64px. Any available pin would do, i.e. IO32
+#define LAT_PIN 40
+#define OE_PIN 2
+#define CLK_PIN 41
+
 // Configure for your panel(s) as appropriate!
 #define PANEL_WIDTH 64
 #define PANEL_HEIGHT 64
-#define PANELS_NUMBER 2
+#define PANELS_NUMBER 4
 
 #define PANE_WIDTH PANEL_WIDTH *PANELS_NUMBER
 #define PANE_HEIGHT PANEL_HEIGHT
