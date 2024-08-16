@@ -5,6 +5,7 @@
 #include <ArduinoJson.h>
 #include <Fonts/FreeMono9pt7b.h>
 #include <spacecraft.h>
+#include <gif_frames.h>
 #pragma region Matrix Config
 #define R1_PIN 4
 #define G1_PIN 5
@@ -435,7 +436,7 @@ bool mode = false;
 int reset_stickman = 2000;
 bool Mode_game = true;
 int width = 26;
-int height = 26;
+int height = 27;
 int X_craft = 0;
 int Y_craft = 0;
 bool exist = false;
@@ -628,7 +629,166 @@ void draw_spacecraft(int x, int y = 100)
       }
     }
   }
+  exist = true;
+  // draw_rocket(x,y);
+}
+int frame_count = num_frames;
+unsigned long last_frame_time = millis();
+int frame_rate = 100;
 
+void S_frame_0(int x, int y = 100)
+{
+  for (int i = 0; i < width; i++)
+  {
+    for (int j = 0; j < height; j++)
+    {
+      uint16_t color = gif_frame_0[j * width + i];
+      if (color == 0xFFFF || color == 0xFFDF || color == 0xFFFE || color == 0xFFBD || color == 0xFFBF)
+        color = 0x0000;
+      int _x = x + i;
+      int _y = y + j;
+      if (_y <= 64)
+      {
+        dma_display->drawPixel(_x, _y, color);
+      }
+      else
+      {
+        _y = _y - 64;
+        _x = _x + 128;
+
+        dma_display->drawPixel(_x, _y, color);
+      }
+    }
+  }
+}
+void S_frame_1(int x, int y = 100)
+{
+  for (int i = 0; i < width; i++)
+  {
+    for (int j = 0; j < height; j++)
+    {
+      uint16_t color = gif_frame_1[j * width + i];
+      if (color == 0xFFFF || color == 0xFFDF || color == 0xFFFE || color == 0xFFBD || color == 0xFFBF)
+        color = 0x0000;
+      int _x = x + i;
+      int _y = y + j;
+      if (_y <= 64)
+      {
+        dma_display->drawPixel(_x, _y, color);
+      }
+      else
+      {
+        _y = _y - 64;
+        _x = _x + 128;
+
+        dma_display->drawPixel(_x, _y, color);
+      }
+    }
+  }
+}
+void S_frame_2(int x, int y = 100)
+{
+  for (int i = 0; i < width; i++)
+  {
+    for (int j = 0; j < height; j++)
+    {
+      uint16_t color = gif_frame_2[j * width + i];
+      if (color == 0xFFFF || color == 0xFFDF || color == 0xFFFE || color == 0xFFBD || color == 0xFFBF)
+        color = 0x0000;
+      int _x = x + i;
+      int _y = y + j;
+      if (_y <= 64)
+      {
+        dma_display->drawPixel(_x, _y, color);
+      }
+      else
+      {
+        _y = _y - 64;
+        _x = _x + 128;
+
+        dma_display->drawPixel(_x, _y, color);
+      }
+    }
+  }
+}
+void S_frame_3(int x, int y = 100)
+{
+  for (int i = 0; i < width; i++)
+  {
+    for (int j = 0; j < height; j++)
+    {
+      uint16_t color = gif_frame_3[j * width + i];
+      if (color == 0xFFFF || color == 0xFFDF || color == 0xFFFE || color == 0xFFBD || color == 0xFFBF)
+        color = 0x0000;
+      int _x = x + i;
+      int _y = y + j;
+      if (_y <= 64)
+      {
+        dma_display->drawPixel(_x, _y, color);
+      }
+      else
+      {
+        _y = _y - 64;
+        _x = _x + 128;
+
+        dma_display->drawPixel(_x, _y, color);
+      }
+    }
+  }
+}
+void S_frame_4(int x, int y = 100)
+{
+  for (int i = 0; i < width; i++)
+  {
+    for (int j = 0; j < height; j++)
+    {
+      uint16_t color = gif_frame_4[j * width + i];
+      if (color == 0xFFFF || color == 0xFFDF || color == 0xFFFE || color == 0xFFBD || color == 0xFFBF)
+        color = 0x0000;
+      int _x = x + i;
+      int _y = y + j;
+      if (_y <= 64)
+      {
+        dma_display->drawPixel(_x, _y, color);
+      }
+      else
+      {
+        _y = _y - 64;
+        _x = _x + 128;
+
+        dma_display->drawPixel(_x, _y, color);
+      }
+    }
+  }
+}
+void draw_spacecraft_2(int x, int y = 100)
+{
+  unsigned long now = millis();
+  if(now - last_frame_time >= frame_rate){
+    frame_count --;
+    last_frame_time = now;
+    switch (frame_count){
+      case 0:
+        S_frame_0(x, y);
+        break;
+      case 1:
+        S_frame_1(x, y);
+        break;
+      case 2:
+        S_frame_2(x, y);
+        break;
+      case 3:
+        S_frame_3(x, y);
+        break;
+      case 4:
+        S_frame_4(x, y);
+        break;
+      default:
+        frame_count = num_frames;
+        break;
+    }
+    if(frame_count == 0) frame_count = num_frames;
+  }
   exist = true;
   // draw_rocket(x,y);
 }
@@ -712,7 +872,8 @@ void loop()
       else
       {
         X_craft = int(data[0][0]);
-        draw_spacecraft(X_craft);
+        //draw_spacecraft(X_craft);
+        draw_spacecraft_2(X_craft);
         draw_rocket(X_craft);
       }
 
@@ -725,6 +886,7 @@ void loop()
   {
     if (exist)
     {
+      draw_spacecraft_2(X_craft);
       draw_rocket(X_craft);
       if (live_enemies <= 0)
       {
