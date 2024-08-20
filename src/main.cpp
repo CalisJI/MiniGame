@@ -5,6 +5,8 @@
 #include <cstdlib>
 #include <ctime>
 #include <Fonts/FreeMono9pt7b.h>
+#include <gif_frames.h>
+#include <spacecraft.h>
 #pragma region Matrix Config
 #define R1_PIN 4
 #define G1_PIN 5
@@ -57,8 +59,8 @@ int numCols = 0;
 const int floatSize = sizeof(float);
 const int SCREEN_WIDTH = 128;
 const int SCREEN_HEIGHT = 128;
-const int PLAYER_WIDTH = 16;
-const int PLAYER_HEIGHT = 16;
+const int PLAYER_WIDTH = frame_width;
+const int PLAYER_HEIGHT = frame_height;
 const int ENEMY_WIDTH = 8;
 const int ENEMY_HEIGHT = 8;
 const int BULLET_WIDTH = 2;
@@ -106,7 +108,7 @@ void Initialize_State()
   player = {SCREEN_WIDTH / 2 - PLAYER_WIDTH / 2, SCREEN_HEIGHT - PLAYER_HEIGHT - 10, true};
   for (int i = 0; i < NUM_ENEMIES; ++i)
   {
-    enemies[i] = {i * (SCREEN_WIDTH / NUM_ENEMIES), 0, true};
+    enemies[i] = {i * (SCREEN_WIDTH / NUM_ENEMIES)+7, 0, true};
   }
   for (int i = 0; i < MAX_BULLETS; ++i)
   {
@@ -216,7 +218,214 @@ void checkCollisions()
 unsigned long last_render_time = millis();
 int render_rate = 20; // Frame rate in frames per second
 
+void S_frame_0(int x, int y)
+{
+  for (int i = 0; i < frame_width; i++)
+  {
+    for (int j = 0; j < frame_height; j++)
+    {
+      int x1 = x + i;
+      int y1 = y + j;
+      if (y1 > 64)
+      {
+        y1 = y1 - 64;
+        x1 = x1 + 128;
+      }
+      uint16_t color = gif_frame_0[i + j * frame_width];
+      dma_display->drawPixel(x1, y1, color);
+    }
+  }
+}
 
+void S_frame_1(int x, int y)
+{
+  for (int i = 0; i < frame_width; i++)
+  {
+    for (int j = 0; j < frame_height; j++)
+    {
+      int x1 = x + i;
+      int y1 = y + j;
+      if (y1 > 64)
+      {
+        y1 = y1 - 64;
+        x1 = x1 + 128;
+      }
+      uint16_t color = gif_frame_1[i + j * frame_width];
+      dma_display->drawPixel(x1, y1, color);
+    }
+  }
+}
+
+void S_frame_2(int x, int y)
+{
+  for (int i = 0; i < frame_width; i++)
+  {
+    for (int j = 0; j < frame_height; j++)
+    {
+      int x1 = x + i;
+      int y1 = y + j;
+      if (y1 > 64)
+      {
+        y1 = y1 - 64;
+        x1 = x1 + 128;
+      }
+      uint16_t color = gif_frame_2[i + j * frame_width];
+      dma_display->drawPixel(x1, y1, color);
+    }
+  }
+}
+void S_frame_3(int x, int y)
+{
+  for (int i = 0; i < frame_width; i++)
+  {
+    for (int j = 0; j < frame_height; j++)
+    {
+      int x1 = x + i;
+      int y1 = y + j;
+      if (y1 > 64)
+      {
+        y1 = y1 - 64;
+        x1 = x1 + 128;
+      }
+      uint16_t color = gif_frame_3[i + j * frame_width];
+      dma_display->drawPixel(x1, y1, color);
+    }
+  }
+}
+void S_frame_4(int x, int y)
+{
+  for (int i = 0; i < frame_width; i++)
+  {
+    for (int j = 0; j < frame_height; j++)
+    {
+      int x1 = x + i;
+      int y1 = y + j;
+      if (y1 > 64)
+      {
+        y1 = y1 - 64;
+        x1 = x1 + 128;
+      }
+      uint16_t color = gif_frame_4[i + j * frame_width];
+      dma_display->drawPixel(x1, y1, color);
+    }
+  }
+}
+void S_frame_5(int x, int y)
+{
+  for (int i = 0; i < frame_width; i++)
+  {
+    for (int j = 0; j < frame_height; j++)
+    {
+      int x1 = x + i;
+      int y1 = y + j;
+      if (y1 > 64)
+      {
+        y1 = y1 - 64;
+        x1 = x1 + 128;
+      }
+      uint16_t color = gif_frame_5[i + j * frame_width];
+      dma_display->drawPixel(x1, y1, color);
+    }
+  }
+}
+void S_frame_6(int x, int y)
+{
+  for (int i = 0; i < frame_width; i++)
+  {
+    for (int j = 0; j < frame_height; j++)
+    {
+      int x1 = x + i;
+      int y1 = y + j;
+      if (y1 > 64)
+      {
+        y1 = y1 - 64;
+        x1 = x1 + 128;
+      }
+      uint16_t color = gif_frame_6[i + j * frame_width];
+      dma_display->drawPixel(x1, y1, color);
+    }
+  }
+}
+void S_frame_7(int x, int y)
+{
+  for (int i = 0; i < frame_width; i++)
+  {
+    for (int j = 0; j < frame_height; j++)
+    {
+      int x1 = x + i;
+      int y1 = y + j;
+      if (y1 > 64)
+      {
+        y1 = y1 - 64;
+        x1 = x1 + 128;
+      }
+      uint16_t color = gif_frame_7[i + j * frame_width];
+      dma_display->drawPixel(x1, y1, color);
+    }
+  }
+}
+unsigned long last_frame_time = millis();
+int frame_rate =4; // Frame rate in frames per second
+int frame_count = -1;
+void draw_spacecraft_2(int x, int y)
+{
+  unsigned long now = millis();
+  if(now - last_frame_time >= 1000/frame_rate){
+    frame_count++;
+    last_frame_time = now;
+  }
+  switch (frame_count)
+  {
+  case 7:
+    S_frame_7(x, y);
+    break;
+  case 6:
+    S_frame_6(x, y);
+    break;
+  case 5:
+    S_frame_5(x, y);
+    break;
+  case 4:
+    S_frame_4(x, y);
+    break;
+  case 3:
+    S_frame_3(x, y);
+    break;
+  case 2:
+    S_frame_2(x, y);
+    break;
+  case 1:
+    S_frame_1(x, y);
+    break;
+  case 0:
+    S_frame_0(x, y);
+    break;
+  default:
+    S_frame_0(x, y);
+    break;
+  }
+  if (frame_count == num_frames-1)
+    frame_count = -1;
+}
+
+void draw_frame(int x, int y)
+{
+  for (int i = 0; i < ENEMY_WIDTH; i++)
+  {
+    for (int j = 0; j < ENEMY_HEIGHT; j++)
+    {
+      int x1 = x + i;
+      int y1 = y + j;
+      if (y1 > 64)
+      {
+        y1 = y1 - 64;
+        x1 = x1 + 128;
+      }
+      uint16_t color = aircraft[j * ENEMY_WIDTH + i];
+      dma_display->drawPixel(x1, y1, color);
+    }
+  }
+}
 void render()
 {
   unsigned long now = millis();
@@ -233,7 +442,8 @@ void render()
       y = y - 64;
       x = x + 128;
     }
-    dma_display->drawRect(x, y, PLAYER_WIDTH, PLAYER_HEIGHT, COLOR_GREEN);
+    draw_spacecraft_2(x,y);
+    // dma_display->drawRect(x, y, PLAYER_WIDTH, PLAYER_HEIGHT, COLOR_GREEN);
   }
   for (auto &enemy : enemies)
   {
@@ -241,12 +451,9 @@ void render()
     {
       int x = enemy.x;
       int y = enemy.y;
-      if (y > 64)
-      {
-        y = y - 64;
-        x = x + 128;
-      }
-      dma_display->drawRect(x, y, ENEMY_WIDTH, ENEMY_HEIGHT, COLOR_RED);
+      
+      draw_frame(x, y);
+      //dma_display->drawRect(x, y, ENEMY_WIDTH, ENEMY_HEIGHT, COLOR_RED);
     }
   }
   for (int i = 0; i < MAX_BULLETS; ++i)
