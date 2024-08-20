@@ -4,6 +4,7 @@
 #include <vector>
 #include <cstdlib>
 #include <ctime>
+#include <Fonts/FreeMono9pt7b.h>
 #pragma region Matrix Config
 #define R1_PIN 4
 #define G1_PIN 5
@@ -28,7 +29,6 @@
 #define PANE_WIDTH PANEL_WIDTH *PANELS_NUMBER
 #define PANE_HEIGHT PANEL_HEIGHT
 #define NUM_PIXELS PANE_WIDTH *PANE_HEIGHT
-
 
 #define COLOR_GREEN 0x07E0
 #define COLOR_RED 0xF800
@@ -58,27 +58,29 @@ const int floatSize = sizeof(float);
 const int SCREEN_WIDTH = 128;
 const int SCREEN_HEIGHT = 128;
 const int PLAYER_WIDTH = 16;
-const int PLAYER_HEIGHT = 8;
-const int ENEMY_WIDTH = 16;
+const int PLAYER_HEIGHT = 16;
+const int ENEMY_WIDTH = 8;
 const int ENEMY_HEIGHT = 8;
 const int BULLET_WIDTH = 2;
 const int BULLET_HEIGHT = 4;
 const int NUM_ENEMIES = 10;
-
-
-struct Player {
-    int x, y;
-    bool alive;
+const int MAX_BULLETS = 10; // Số lượng viên đạn tối đa
+struct Player
+{
+  int x, y;
+  bool alive;
 };
 
-struct Enemy {
-    int x, y;
-    bool alive;
+struct Enemy
+{
+  int x, y;
+  bool alive;
 };
 
-struct Bullet {
-    int x, y;
-    bool active;
+struct Bullet
+{
+  int x, y;
+  bool active;
 };
 
 uint32_t rgb565_to_rgb888(uint16_t rgb565)
@@ -96,9 +98,9 @@ uint32_t rgb565_to_rgb888(uint16_t rgb565)
   // Ghép các giá trị RGB888 thành một giá trị 32 bit
   return (r << 16) | (g << 8) | b;
 }
-Player player ;
+Player player;
 std::vector<Enemy> enemies(NUM_ENEMIES);
-Bullet bullet = {0, 0, false};
+Bullet bullets[MAX_BULLETS];
 void Initialize_State()
 {
   player = {SCREEN_WIDTH / 2 - PLAYER_WIDTH / 2, SCREEN_HEIGHT - PLAYER_HEIGHT - 10, true};
@@ -106,81 +108,204 @@ void Initialize_State()
   {
     enemies[i] = {i * (SCREEN_WIDTH / NUM_ENEMIES), 0, true};
   }
+  for (int i = 0; i < MAX_BULLETS; ++i)
+  {
+    bullets[i] = {0, 0, false};
+  }
+}
+void fireBullet()
+{
+  for (int i = 0; i < MAX_BULLETS; ++i)
+  {
+    if (!bullets[i].active)
+    {
+      bullets[i].x = player.x + PLAYER_WIDTH / 2 - BULLET_WIDTH / 2;
+      bullets[i].y = player.y - BULLET_HEIGHT;
+      bullets[i].active = true;
+      break; // Chỉ bắn một viên đạn tại một thời điểm
+    }
+  }
+}
+int X_player = 0;
+void updatePlayer(int x)
+{
+  // Example: Move player left or right based on input
+  player.x = x;
 }
 
-void updatePlayer(int x) {
-    // Example: Move player left or right based on input
-    player.x = x;
-}
-void updateEnemies() {
-    for (auto& enemy : enemies) {
-        if (enemy.alive) {
-            enemy.y += 1; // Move downwards
-            if (enemy.y > SCREEN_HEIGHT) {
-                enemy.y = 0; // Reset position if off screen
-            }
-        }
+unsigned long last_enemies_update = millis();
+int enemies_update_rate = 500;
+void updateEnemies()
+{
+  unsigned long now = millis();
+  if (now - last_enemies_update < enemies_update_rate)
+    return;
+  last_enemies_update = now;
+  for (auto &enemy : enemies)
+  {
+    if (enemy.alive)
+    {
+      enemy.y += 1; // Move downwards
+      if (enemy.y > SCREEN_HEIGHT)
+      {
+        enemy.y = 0; // Reset position if off screen
+      }
     }
-}
-void updateBullet() {
-    if (bullet.active) {
-        bullet.y -= 4; // Move upwards
-        if (bullet.y < 0) {
-            bullet.active = false; // Deactivate if off screen
-        }
-    }
+  }
 }
 
-void checkCollisions() {
-    // Check collision between bullet and enemies
-    for (auto& enemy : enemies) {
-        if (enemy.alive && bullet.active && 
-            bullet.x < enemy.x + ENEMY_WIDTH &&
-            bullet.x + BULLET_WIDTH > enemy.x &&
-            bullet.y < enemy.y + ENEMY_HEIGHT &&
-            bullet.y + BULLET_HEIGHT > enemy.y) {
-            enemy.alive = false;
-            bullet.active = false;
-        }
+unsigned long last_bullets_update = millis();
+int bullets_update_speed = 10;
+void updateBullets()
+{
+  unsigned long now = millis();
+  if (now - last_bullets_update < bullets_update_speed)
+    return;
+  last_bullets_update = now;
+  for (int i = 0; i < MAX_BULLETS; ++i)
+  {
+    if (bullets[i].active)
+    {
+      bullets[i].y -= 4; // Di chuyển lên trên
+      if (bullets[i].y < 0)
+      {
+        bullets[i].active = false; // Vô hiệu hóa nếu ra ngoài màn hình
+      }
     }
-
-    // Check collision between enemies and player
-    for (auto& enemy : enemies) {
-        if (enemy.alive && 
-            player.x < enemy.x + ENEMY_WIDTH &&
-            player.x + PLAYER_WIDTH > enemy.x &&
-            player.y < enemy.y + ENEMY_HEIGHT &&
-            player.y + PLAYER_HEIGHT > enemy.y) {
-            player.alive = false; // Player is hit
-        }
-    }
+  }
 }
-void render() {
-    dma_display->clearScreen();
-    if (player.alive) {
-        dma_display->drawRect(player.x, player.y, PLAYER_WIDTH, PLAYER_HEIGHT, COLOR_GREEN);
-    }
-
-    for (const auto& enemy : enemies) {
-        if (enemy.alive) {
-            dma_display->drawRect(enemy.x, enemy.y, ENEMY_WIDTH, ENEMY_HEIGHT, COLOR_RED);
+unsigned long last_game_over_time = millis();
+int restart_time = 2000;
+void checkCollisions()
+{
+  // Check collision between bullet and enemies
+  for (int i = 0; i < MAX_BULLETS; ++i)
+  {
+    if (bullets[i].active)
+    {
+      for (auto &enemy : enemies)
+      {
+        if (enemy.alive &&
+            bullets[i].x < enemy.x + ENEMY_WIDTH &&
+            bullets[i].x + BULLET_WIDTH > enemy.x &&
+            bullets[i].y < enemy.y + ENEMY_HEIGHT &&
+            bullets[i].y + BULLET_HEIGHT > enemy.y)
+        {
+          enemy.alive = false;
+          bullets[i].active = false;
+          break;
         }
+      }
     }
+  }
 
-    if (bullet.active) {
-        dma_display->drawRect(bullet.x, bullet.y, BULLET_WIDTH, BULLET_HEIGHT, COLOR_WHITE);
+  // Check collision between enemies and player
+  for (auto &enemy : enemies)
+  {
+    if (enemy.alive &&
+        player.x < enemy.x + ENEMY_WIDTH &&
+        player.x + PLAYER_WIDTH > enemy.x &&
+        player.y < enemy.y + ENEMY_HEIGHT &&
+        player.y + PLAYER_HEIGHT > enemy.y)
+    {
+      player.alive = false; // Player is hit
+      last_game_over_time = millis();
     }
+  }
+}
+unsigned long last_render_time = millis();
+int render_rate = 20; // Frame rate in frames per second
+
+
+void render()
+{
+  unsigned long now = millis();
+  if (now - last_render_time < 1000 / render_rate)
+    return;
+  last_render_time = now;
+  dma_display->clearScreen();
+  if (player.alive)
+  {
+    int x = player.x;
+    int y = player.y;
+    if (y > 64)
+    {
+      y = y - 64;
+      x = x + 128;
+    }
+    dma_display->drawRect(x, y, PLAYER_WIDTH, PLAYER_HEIGHT, COLOR_GREEN);
+  }
+  for (auto &enemy : enemies)
+  {
+    if (enemy.alive)
+    {
+      int x = enemy.x;
+      int y = enemy.y;
+      if (y > 64)
+      {
+        y = y - 64;
+        x = x + 128;
+      }
+      dma_display->drawRect(x, y, ENEMY_WIDTH, ENEMY_HEIGHT, COLOR_RED);
+    }
+  }
+  for (int i = 0; i < MAX_BULLETS; ++i)
+  {
+    if (bullets[i].active)
+    {
+      int x = bullets[i].x;
+      int y = bullets[i].y;
+      if (y > 64)
+      {
+        y = y - 64;
+        x = x + 128;
+      }
+      dma_display->drawRect(x, y, BULLET_WIDTH, BULLET_HEIGHT, COLOR_WHITE);
+    }
+  }
 }
 
 unsigned long period_time = millis();
-bool set_FPS(int rate){
+bool set_FPS(int rate)
+{
   unsigned long now = millis();
-  int elapsed = 1000/rate;
-  if(now - period_time >=elapsed){
+  int elapsed = 1000 / rate;
+  if (now - period_time >= elapsed)
+  {
     period_time = now;
     return true;
   }
-  else return false;
+  else
+    return false;
+}
+const char *text = "Game Over";
+bool game_over = false;
+
+void Game_Over()
+{
+  if(!game_over){
+    game_over = true;
+    last_game_over_time = millis();
+  }
+  // Font metrics
+  int textWidth = 0;
+  int textHeight = 0;
+  int cursorX = 0;
+  int cursorY = 0;
+
+  // Calculate text dimensions (approximated for example)
+  textWidth = strlen(text) * 11; // Assuming each character is approximately 6 pixels wide
+  textHeight = 8;               // Assuming font height is 8 pixels
+
+  // Compute the center position
+  cursorX = (128 - textWidth) / 2;
+  cursorY = (64 + textHeight) / 2;
+
+  // Set the cursor position
+  dma_display->setCursor(cursorX, cursorY);
+
+  // Print text on the matrix
+  dma_display->print(text);
 }
 void setup()
 {
@@ -189,12 +314,15 @@ void setup()
   dma_display->begin();             // setup the LED matrix
   dma_display->setBrightness8(200); // 0-255
   dma_display->clearScreen();
+  dma_display->setTextColor(dma_display->color333(7, 7, 7)); //)
+  dma_display->setTextSize(1);
+  dma_display->setFont(&FreeMono9pt7b);
+  Initialize_State();
 }
+
 
 void loop()
 {
-  // server.handleClient();
-
 #pragma region Serial processing
   while (Serial.available() > 0)
   {
@@ -221,8 +349,6 @@ void loop()
     int expectedSize = numRows * numCols * floatSize;
     if (bufferIndex >= (2 * sizeof(int) + expectedSize))
     {
-      //dma_display->clearScreen();
-
       for (int row = 0; row < numRows; ++row)
       {
         for (int col = 0; col < numCols; ++col)
@@ -238,18 +364,29 @@ void loop()
         if (player.alive)
         {
           int x = (int)data[0][0];
+          int f = (int)data[0][2];
           updatePlayer(x);
-          updateEnemies();
-          updateBullet();
-          checkCollisions();
-          render();
+          if (f == 1)
+            fireBullet();
+        }
+        else
+        {
+          //Game_Over();
         }
       }
-
       // Reset chỉ số chỉ mục sau khi xử lý
     }
     bufferIndex = 0;
   }
+  if(!player.alive) Game_Over();
+  unsigned long now = millis();
+  if(now-last_game_over_time >= restart_time && !player.alive){
+    Initialize_State();
+  }
+  //if(game_over) return;
+  updateEnemies();
+  updateBullets();
+  checkCollisions();
+  render();
 #pragma endregion
-
 }
