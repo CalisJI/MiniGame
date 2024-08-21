@@ -62,7 +62,6 @@ ser.close()
 
 ```
 
-
 ### Receive Data
 
 ```c++
