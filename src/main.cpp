@@ -215,6 +215,14 @@ void checkCollisions()
     }
   }
 }
+bool allEnemiesDefeated() {
+    for (const auto& enemy : enemies) {
+        if (enemy.alive) {
+            return false; // Nếu còn kẻ thù còn sống, chưa thắng
+        }
+    }
+    return true; // Tất cả kẻ thù đều đã bị tiêu diệt
+}
 unsigned long last_render_time = millis();
 int render_rate = 20; // Frame rate in frames per second
 
@@ -486,6 +494,7 @@ bool set_FPS(int rate)
     return false;
 }
 const char *text = "Game Over";
+const char *text1 = "Win!!!";
 bool game_over = false;
 
 void Game_Over()
@@ -513,6 +522,34 @@ void Game_Over()
 
   // Print text on the matrix
   dma_display->print(text);
+}
+bool win = false;
+unsigned long last_win_time = millis();
+void Winner()
+{
+  if(!win){
+    win = true;
+    last_win_time = millis();
+  }
+  // Font metrics
+  int textWidth = 0;
+  int textHeight = 0;
+  int cursorX = 0;
+  int cursorY = 0;
+
+  // Calculate text dimensions (approximated for example)
+  textWidth = strlen(text1) * 11; // Assuming each character is approximately 6 pixels wide
+  textHeight = 8;               // Assuming font height is 8 pixels
+
+  // Compute the center position
+  cursorX = (128 - textWidth) / 2;
+  cursorY = (64 + textHeight) / 2;
+
+  // Set the cursor position
+  dma_display->setCursor(cursorX, cursorY);
+
+  // Print text on the matrix
+  dma_display->print(text1);
 }
 void setup()
 {
@@ -587,8 +624,19 @@ void loop()
   }
   if(!player.alive) Game_Over();
   unsigned long now = millis();
-  if(now-last_game_over_time >= restart_time && !player.alive){
+  if (now - last_game_over_time >= restart_time && !player.alive)
+  {
     Initialize_State();
+    enemies_update_rate = 500;
+  }
+  if (allEnemiesDefeated())
+  {
+
+    for (int i = 0; i < NUM_ENEMIES; ++i)
+    {
+      enemies[i] = {i * (SCREEN_WIDTH / NUM_ENEMIES) + 7, 0, true};
+    }
+    enemies_update_rate -= 50;
   }
   //if(game_over) return;
   updateEnemies();
