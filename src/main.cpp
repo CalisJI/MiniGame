@@ -234,7 +234,7 @@ void S_frame_0(int x, int y)
     {
       int x1 = x + i;
       int y1 = y + j;
-      if (y1 > 64)
+      if (y1 >= 64)
       {
         y1 = y1 - 64;
         x1 = x1 + 128;
@@ -253,7 +253,7 @@ void S_frame_1(int x, int y)
     {
       int x1 = x + i;
       int y1 = y + j;
-      if (y1 > 64)
+      if (y1 >= 64)
       {
         y1 = y1 - 64;
         x1 = x1 + 128;
@@ -272,7 +272,7 @@ void S_frame_2(int x, int y)
     {
       int x1 = x + i;
       int y1 = y + j;
-      if (y1 > 64)
+      if (y1 >= 64)
       {
         y1 = y1 - 64;
         x1 = x1 + 128;
@@ -290,7 +290,7 @@ void S_frame_3(int x, int y)
     {
       int x1 = x + i;
       int y1 = y + j;
-      if (y1 > 64)
+      if (y1 >= 64)
       {
         y1 = y1 - 64;
         x1 = x1 + 128;
@@ -308,7 +308,7 @@ void S_frame_4(int x, int y)
     {
       int x1 = x + i;
       int y1 = y + j;
-      if (y1 > 64)
+      if (y1 >= 64)
       {
         y1 = y1 - 64;
         x1 = x1 + 128;
@@ -326,7 +326,7 @@ void S_frame_5(int x, int y)
     {
       int x1 = x + i;
       int y1 = y + j;
-      if (y1 > 64)
+      if (y1 >= 64)
       {
         y1 = y1 - 64;
         x1 = x1 + 128;
@@ -344,7 +344,7 @@ void S_frame_6(int x, int y)
     {
       int x1 = x + i;
       int y1 = y + j;
-      if (y1 > 64)
+      if (y1 >= 64)
       {
         y1 = y1 - 64;
         x1 = x1 + 128;
@@ -362,7 +362,7 @@ void S_frame_7(int x, int y)
     {
       int x1 = x + i;
       int y1 = y + j;
-      if (y1 > 64)
+      if (y1 >= 64)
       {
         y1 = y1 - 64;
         x1 = x1 + 128;
@@ -424,7 +424,7 @@ void draw_frame(int x, int y)
     {
       int x1 = x + i;
       int y1 = y + j;
-      if (y1 > 64)
+      if (y1 >= 64)
       {
         y1 = y1 - 64;
         x1 = x1 + 128;
@@ -445,7 +445,7 @@ void render()
   {
     int x = player.x;
     int y = player.y;
-    if (y > 64)
+    if (y >= 64)
     {
       y = y - 64;
       x = x + 128;
@@ -470,7 +470,7 @@ void render()
     {
       int x = bullets[i].x;
       int y = bullets[i].y;
-      if (y > 64)
+      if (y >= 64)
       {
         y = y - 64;
         x = x + 128;
