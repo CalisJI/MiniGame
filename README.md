@@ -120,7 +120,7 @@ y = 120 # Y coordinate (no action)
 z = 1 # 1: right shield; 2 left shield; 0 none sheild
 data = np.array([[60, 120,1]]).astype(np.float32)
 
-#Game Space Craft
+#Game Space Invaders
 
 x = 60 # X coordinate
 y = 120 # Y coordinate (no action)
