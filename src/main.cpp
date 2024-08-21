@@ -150,7 +150,11 @@ void updateEnemies()
       enemy.y += 1; // Move downwards
       if (enemy.y > SCREEN_HEIGHT)
       {
-        enemy.y = 0; // Reset position if off screen
+        for (int i = 0; i < NUM_ENEMIES; ++i)
+        {
+          enemies[i] = {i * (SCREEN_WIDTH / NUM_ENEMIES) + 7, 0, true};
+        }
+        //enemy.y = 0; // Reset position if off screen
       }
     }
   }
