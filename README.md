@@ -62,50 +62,6 @@ ser.close()
 
 ```
 
-### Receive Data
-
-```c++
-void loop() {
-  while (Serial.available() > 0) {
-    uint8_t byteReceived = Serial.read();
-    
-    if (bufferIndex < bufferSize) {
-      buffer[bufferIndex++] = byteReceived;
-    } else {
-      // Xử lý tình huống quá tải
-      Serial.println("Buffer overflow");
-      bufferIndex = 0; // Reset buffer index in case of overflow
-    }
-  }
-  if (bufferIndex >= 2 * sizeof(int)) {
-    // Đã nhận đủ kích thước dữ liệu
-    memcpy(&numRows, buffer, sizeof(int));
-    memcpy(&numCols, buffer + sizeof(int), sizeof(int));
-
-    int expectedSize = numRows * numCols * floatSize;
-
-    if (bufferIndex >= (2 * sizeof(int) + expectedSize)) {
-      Serial.println("Data received:");
-      float data[numRows][numCols];
-      for (int row = 0; row < numRows; ++row) {
-        for (int col = 0; col < numCols; ++col) {
-          int index = (2 * sizeof(int)) + (row * numCols + col) * floatSize;
-          float value;
-          memcpy(&value, &buffer[index], floatSize);
-          data[row][col] = value;
-          Serial.print(value, 4);  // In với 4 chữ số thập phân
-          Serial.print(" ");
-        }
-        Serial.println();
-      }
-      
-      // Reset chỉ số chỉ mục sau khi xử lý
-      bufferIndex = 0;
-    }
-  }
-}
-```
-
 # Data frame format
 ```python
 # Game Hung Vat
