@@ -27,6 +27,10 @@ ser.write(data_to_send)
 ser.close()
 
 ```
+# Select Game
+Set `num_rows = 0` and `num_cols = 0` `(GameHungVat)` or set `num_rows = 1` and `num_cols = 0` `(GameStickMan)`
+And send within `data` at first time to select the game then leave `num_rows = data.shape[0]` and `num_cols = data.shape[1]` after that to play game
+
 # Data frame format
 ```python
 # Game Hung Vat
