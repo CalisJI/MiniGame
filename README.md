@@ -64,7 +64,7 @@ ser.close()
 
 ### Receive Data
 
-```c++
+```C
 void loop() {
   while (Serial.available() > 0) {
     uint8_t byteReceived = Serial.read();
