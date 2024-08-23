@@ -53,3 +53,5 @@ z = 1 # 1: fire bullet; 0 none fire
 data = np.array([[60, 120,1]]).astype(np.float32)
 
 ```
+## References
+https://github.com/mrcodetastic/ESP32-HUB75-MatrixPanel-DMA
