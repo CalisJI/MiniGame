@@ -1,4 +1,37 @@
 # Project display object's point on matrix
+
+### Using UART to communicate with each other
+
+### Pinout ESP32-S3
+![](/img/connector.jpg)
+
+### Hardware
+
+- ESP32-S3 N8R2 Dual Type-C
+    ![ESP32-S3 N8R2 Dual Type-C](/img/esp32s3.jpg)
+    
+
+- Pinout
+![](/img/esp32-s3_devkitc-1_pinlayout_v1.1.jpg)
+
+
+```Cpp
+#define R1_PIN 4
+#define G1_PIN 5
+#define B1_PIN 6
+#define R2_PIN 7
+#define G2_PIN 15
+#define B2_PIN 16
+#define A_PIN 18
+#define B_PIN 8 // Changed from library default
+#define C_PIN 3
+#define D_PIN 42
+#define E_PIN 39 // required for 1/32 scan panels, like 64x64px. Any available pin would do, i.e. IO32
+#define LAT_PIN 40
+#define OE_PIN 2
+#define CLK_PIN 41
+```
+
 ### Data input example Serial Port
 
 ```python
@@ -60,50 +93,6 @@ ser.write(data_to_send)
 # Đóng cổng serial
 ser.close()
 
-```
-
-### Receive Data
-
-```CPP
-void loop() {
-  while (Serial.available() > 0) {
-    uint8_t byteReceived = Serial.read();
-    
-    if (bufferIndex < bufferSize) {
-      buffer[bufferIndex++] = byteReceived;
-    } else {
-      // Xử lý tình huống quá tải
-      Serial.println("Buffer overflow");
-      bufferIndex = 0; // Reset buffer index in case of overflow
-    }
-  }
-  if (bufferIndex >= 2 * sizeof(int)) {
-    // Đã nhận đủ kích thước dữ liệu
-    memcpy(&numRows, buffer, sizeof(int));
-    memcpy(&numCols, buffer + sizeof(int), sizeof(int));
-
-    int expectedSize = numRows * numCols * floatSize;
-
-    if (bufferIndex >= (2 * sizeof(int) + expectedSize)) {
-      Serial.println("Data received:");
-      float data[numRows][numCols];
-      for (int row = 0; row < numRows; ++row) {
-        for (int col = 0; col < numCols; ++col) {
-          int index = (2 * sizeof(int)) + (row * numCols + col) * floatSize;
-          float value;
-          memcpy(&value, &buffer[index], floatSize);
-          data[row][col] = value;
-          Serial.print(value, 4);  // In với 4 chữ số thập phân
-          Serial.print(" ");
-        }
-        Serial.println();
-      }
-      
-      // Reset chỉ số chỉ mục sau khi xử lý
-      bufferIndex = 0;
-    }
-  }
-}
 ```
 
 # Data frame format
