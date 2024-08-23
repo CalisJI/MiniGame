@@ -19,7 +19,7 @@ header = struct.pack('<II', num_rows, num_cols)  # <II cho hai số nguyên khô
 data_to_send = header + data_bytes
 # Mở cổng serial
 ser = serial.Serial('/dev/ttyUSB0', 115200)  # Thay 'COM3' bằng cổng serial của bạn
-print(data)
+
 # Gửi dữ liệu
 ser.write(data_to_send)
 
