@@ -436,8 +436,6 @@ void setup()
   dma_display->begin();            // setup the LED matrix
   dma_display->setBrightness8(200); // 0-255
   dma_display->clearScreen();
-  // draw_cat(10,10,20,20);
-  // drawXbm565(10,10,20,20,CAT_bits,dma_display->color565(100,0,0));
 }
 
 bool mode = false;
@@ -472,14 +470,10 @@ void loop()
     if (numRows == 1 && numCols == 0)
     {
       Mode_game = true;
-      //dma_display->clearScreen();
-      // Serial.println("Stick Man");
     }
     else if (numRows == 0 && numCols == 0)
     {
       Mode_game = false;
-      // Serial.println("HungVat");
-      //dma_display->clearScreen();
     }
     
     int expectedSize = numRows * numCols * floatSize;
@@ -507,8 +501,6 @@ void loop()
         if (!game_over)
           drawStickMan(int(data[0][0]), int(data[0][1]), int(data[0][2]));
       }
-
-      // Reset chỉ số chỉ mục sau khi xử lý
       
     }
     bufferIndex = 0;
