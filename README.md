@@ -7,15 +7,15 @@
 
 ### Hardware
 
-- ESP32-S3 N8R2 Dual Type-C
+- **ESP32-S3 N8R2 Dual Type-C:**
     ![ESP32-S3 N8R2 Dual Type-C](/img/esp32s3.jpg)
     
 
-- Pinout
+- **Pinout**
 ![](/img/esp32-s3_devkitc-1_pinlayout_v1.1.jpg)
 
 
-```Cpp
+```CPP
 #define R1_PIN 4
 #define G1_PIN 5
 #define B1_PIN 6
