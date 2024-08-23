@@ -27,3 +27,25 @@ ser.write(data_to_send)
 ser.close()
 
 ```
+# Data frame format
+```python
+# Game Hung Vat
+x = 60 # X coordinate
+y = 120 # Y coordinate (no action)
+z = 1 # action (no action)
+data = np.array([[60, 120,1]]).astype(np.float32)
+
+# Game Stick Man
+x = 60 # X coordinate
+y = 120 # Y coordinate (no action)
+z = 1 # 1: right shield; 2 left shield; 0 none sheild
+data = np.array([[60, 120,1]]).astype(np.float32)
+
+#Game Space Invaders
+
+x = 60 # X coordinate
+y = 120 # Y coordinate (no action)
+z = 1 # 1: fire bullet; 0 none fire
+data = np.array([[60, 120,1]]).astype(np.float32)
+
+```
