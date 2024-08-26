@@ -42,6 +42,7 @@ n = 2
 num_rows = 1
 num_cols = 0
 
+# Data Frame to send
 data = np.array([[60, 120,1]]).astype(np.float32)
 num_rows = data.shape[0]
 num_cols = data.shape[1]
