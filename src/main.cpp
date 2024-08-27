@@ -612,7 +612,9 @@ void loop()
         if (player.alive)
         {
           int x = (int)data[0][0];
-          int f = (int)data[0][2];
+          // int f = (int)data[0][2];
+          int f = 1;
+
           updatePlayer(x);
           if (f == 1)
             fireBullet();
