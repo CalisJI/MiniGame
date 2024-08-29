@@ -1,5 +1,7 @@
 # Project display object's point on matrix
 
+## Swich branch to select project for using
+
 ### Using UART to communicate with each other
 Host machine running human detection connect to ESP32 via UART using TypeC cable. They communicate realtime with each other
 
