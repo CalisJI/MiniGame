@@ -1,7 +1,7 @@
 # Project display object's point on matrix
 ## Configuration
 + Connect ESP32 to PC via USB Type-C cable
-+ port = "/dev/ttyUSB0" (linux) "COM3" (Windows etc)
++ port = "/dev/ttyACM0" (linux) "COM3" (Windows etc)
 + Baudrate : Speed rate (default: 230400)
 
 ### Data input example Serial Port
