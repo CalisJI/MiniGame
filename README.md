@@ -1,4 +1,10 @@
 # Project display object's point on matrix
+
+# Swich branch to know configuration of each project 
+- `Space Invader`
+- `GameHungVat`
+- `GameStickMan`
+
 ## Configuration
 + Connect ESP32 to PC via USB Type-C cable
 + port = "/dev/ttyACM0" (linux) "COM3" (Windows etc)
