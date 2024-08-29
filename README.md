@@ -3,6 +3,11 @@
 ### Using UART to communicate with each other
 Host machine running human detection connect to ESP32 via UART using TypeC cable. They communicate realtime with each other
 
+### Connecting wire
+![](/img/wire.png)
+
+- **Type: 128x128** and **Type: 128x64**
+  
 ### Pinout ESP32-S3
 ![](/img/connector.jpg)
 
